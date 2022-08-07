@@ -650,8 +650,8 @@ def actually_run_module(args):
         #hier zijn B2C én B2B pakketten opgehoogd om het target te bereiken; 
         #er zijn dus meer B2B en minder B2C pakketten dan in de versie hierboven
         zones['parcels_calib_v10_b2a']  = (zones['parcels_B2C'] + zones['parcels_B2B']) * parcels_calib_v10_b2a
-        
-        
+        zones['parcels']  = (zones['parcels_B2C'] + zones['parcels_B2B']) * parcels_calib_v10_b2a
+        zones['parcels']  = np.array(np.round(zones['parcels'],0), dtype=int)
         
         
         zones_copy = zones.copy()
