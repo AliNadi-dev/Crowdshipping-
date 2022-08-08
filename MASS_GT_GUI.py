@@ -5,7 +5,7 @@ Created on Fri May 29 10:47:15 2020
 @author: STH
 """
 
-#%% Importeer de modules van het model
+# Importeer de modules van het model
 import __module_FS__
 import __module_SIF__
 import __module_SHIP__
@@ -16,7 +16,7 @@ import __module_SERVICE__
 import __module_TRAF__
 import __module_OUTP__
 
-#%% Libraries nodig voor de user interface
+# Libraries nodig voor de user interface
 import tkinter as tk
 from tkinter import filedialog
 from tkinter.ttk import Progressbar
@@ -367,7 +367,7 @@ class Root:
                                         try:
                                             varValues[i] = float(value)
                                         except ValueError:
-                                            if not (value == '' and self.varStrings[i] in optionalVars):
+                                            if not (value == '' and value in optionalVars):
                                                 varValues[i] = value
                                                 errorMessage = (
                                                     errorMessage +

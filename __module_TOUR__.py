@@ -571,7 +571,7 @@ def actually_run_module(args):
                 for ship in range(nShipmentsPerCarrier[car])]
             for car in range(nCarriers)]
         tourSequences = [
-            [np.zeros(min(nShipmentsPerCarrier[car], maxNumShips) * 2, dtype=int)
+            [np.zeros(nShipmentsPerCarrier[car], dtype=int)
                 for ship in range(nShipmentsPerCarrier[car])]
             for car in range(nCarriers)]
         nTours = np.zeros(nCarriers)
@@ -1203,9 +1203,8 @@ def actually_run_module(args):
 
         tours = pd.read_csv(
             varDict['OUTPUTFOLDER'] + f"Tours_{varDict['LABEL']}.csv")
-        tours.loc[tours['TRIP_DEPTIME']  <  0, 'TRIP_DEPTIME'] += 24
-        tours.loc[tours['TRIP_DEPTIME'] >= 24, 'TRIP_DEPTIME'] -= 24
-        tours.loc[tours['TRIP_DEPTIME'] >= 24, 'TRIP_DEPTIME'] -= 24
+        tours.loc[tours['TRIP_DEPTIME'] > 24, 'TRIP_DEPTIME'] -= 24
+        tours.loc[tours['TRIP_DEPTIME'] > 24, 'TRIP_DEPTIME'] -= 24
 
         for tod in range(24):
 

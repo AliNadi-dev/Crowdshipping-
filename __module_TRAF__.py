@@ -612,7 +612,6 @@ def actually_run_module(args):
             varDict['OUTPUTFOLDER'] + "Tours_" + varDict['LABEL'] + ".csv")
         allTrips['ORIG'] = [invZoneDict[x] for x in allTrips['ORIG']]
         allTrips['DEST'] = [invZoneDict[x] for x in allTrips['DEST']]
-        allTrips.loc[allTrips['TRIP_DEPTIME']  <  0, 'TRIP_DEPTIME'] += 24
         allTrips.loc[allTrips['TRIP_DEPTIME'] >= 24, 'TRIP_DEPTIME'] -= 24
         allTrips.loc[allTrips['TRIP_DEPTIME'] >= 24, 'TRIP_DEPTIME'] -= 24
         capUt = (

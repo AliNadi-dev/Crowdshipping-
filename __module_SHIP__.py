@@ -151,7 +151,7 @@ def actually_run_module(args):
             "Start simulation at: " +
             datetime.datetime.now().strftime("%y-%m-%d %H:%M") + "\n")
 
-        chooseNearestDC = (str(varDict['NEAREST_DC']).upper() == 'TRUE')
+        chooseNearestDC = (varDict['NEAREST_DC'].upper() == 'TRUE')
 
         # Create shipments to/from external areas or not
         doExtArea = True

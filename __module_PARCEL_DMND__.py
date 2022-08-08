@@ -411,8 +411,8 @@ def actually_run_module(args):
         # Calculate number of parcels per zone
         # based on number of households and
         # total number of parcels on an average day
-        zones['parcels_B2B'] = (
-            segs['9: arbeidspl_totaal'] *            
+        zones['parcels'] = (
+            segs['9: arbeidspl_totaal'] *
             varDict['PARCELS_PER_EMPL'] / varDict['PARCELS_SUCCESS_B2B'])
 
         # ------- Calculate parcels per zone with parcel demand model ---------
@@ -574,15 +574,14 @@ def actually_run_module(args):
         # Cum prob for highest category is 1 by definition
         demandDF['cprob_20p'] = 1
 
-        # Probability 0 parcels
-        demandDF['prob_0p'] = demandDF['cprob_0p']
-
-        # Calculate other probabilities (differences between consecutive cprob)
+        # Calculate probabilities (differences between consecutive cprob)
         for p in parcel_levels[1:]:
             demandDF[f'prob_{p}p'] = (
                 demandDF[f'cprob_{p}p'] -
                 demandDF[f'cprob_{parcel_levels[parcel_levels.index(p) - 1]}p'])
 
+        # Probability 0 parcels
+        demandDF['prob_0p'] = demandDF['cprob_0p']
 
         # ---------------------------------------------------------------------
         # 5) multiply each prob with corresponding no of
@@ -615,74 +614,7 @@ def actually_run_module(args):
             aggfunc=np.sum)
 
         # Add the B2C parcels to the B2B parcels
-        zones['parcels_B2C'] = (demandPerZone['parcels'] / 60)
-        
-        
-        ## TESTS below
-        # parcels_b2c = zones['parcels_B2C'].sum()
-
-        zones['woningen'] = segs['1: woningen'].copy()
-        
-        
-        #calculate total numbers of parcels for old versions as targets
-        #v11 has hardly more parcels than v12, ca. 187k to consumers
-        #v10 has way more parcels, ca. 480k in total
-        parcels_target_v11 = 0.112 * zones['woningen'].sum()   #separate b2c and b2b factors
-        parcels_target_v10 = 0.288 * zones['woningen'].sum()   #only one factor applied to HH, no separate b2b
-        
-        
-        #ophogingsfactor voor toepassing op alleen b2c pakketten
-        parcels_calib_v11     = parcels_target_v11 / zones['parcels_B2C'].sum()
-
-        #ophogingsfactor voor toepassing op alleen b2c pakketten
-        parcels_calib_v10_b2c = (parcels_target_v10 - zones['parcels_B2B'].sum())/ zones['parcels_B2C'].sum() 
-        
-        #ophogingsfactor voor toepassing op B2C én B2B pakketten
-        parcels_calib_v10_b2a = parcels_target_v10 / (zones['parcels_B2C'].sum() + zones['parcels_B2B'].sum())
-            
-        
-        #hier zijn alleen B2C pakketten opgehoogd om het target te bereiken
-        zones['parcels_calib_v11']      =  zones['parcels_B2C'] * parcels_calib_v11     + zones['parcels_B2B']
-        
-        #hier zijn alleen B2C pakketten opgehoogd om het target te bereiken
-        zones['parcels_calib_v10_b2c']  =  zones['parcels_B2C'] * parcels_calib_v10_b2c + zones['parcels_B2B']
-        
-        #hier zijn B2C én B2B pakketten opgehoogd om het target te bereiken; 
-        #er zijn dus meer B2B en minder B2C pakketten dan in de versie hierboven
-        zones['parcels_calib_v10_b2a']  = (zones['parcels_B2C'] + zones['parcels_B2B']) * parcels_calib_v10_b2a
-        zones['parcels']  = (zones['parcels_B2C'] + zones['parcels_B2B']) * parcels_calib_v10_b2a
-        zones['parcels']  = np.array(np.round(zones['parcels'],0), dtype=int)
-        
-        
-        zones_copy = zones.copy()
-        zones_copy['parcels_B2C_total']  = demandPerZone['parcels'].copy()
-        zones_copy['parcels_B2C_perday'] = (demandPerZone['parcels'] / 60).copy()
-
-
-        zones_copy['parcels_B2C_old'] = (segs['1: woningen'        ] * varDict['PARCELS_PER_HH'  ] / varDict['PARCELS_SUCCESS_B2C'])
-        zones_copy['parcels_B2B_old'] = (segs['9: arbeidspl_totaal'] * varDict['PARCELS_PER_EMPL'] / varDict['PARCELS_SUCCESS_B2B'])
-        # zones_copy['parcels']  = np.array(np.round(zones['parcels'],0), dtype=int)
-        
-        zones_copy['parcel_quotient'] = zones_copy['parcels_B2C_total'] / zones_copy['parcels_B2C_old'] 
-        zones_copy['parcel_diff_day'] = zones_copy['parcels_B2C_perday'] - zones_copy['parcels_B2C_old'] 
-        
-        zones_copy['woningen'] = segs['1: woningen'].copy()
-        zones_copy['inwoners'] = segs['2: inwoners'].copy()
-        zones_copy['arbeidspl'] = segs['9: arbeidspl_totaal'].copy()
-        zones_copy['inkomen'] = segs['9: arbeidspl_totaal'].copy()
-        zones_copy['sted'] = segs['9: arbeidspl_totaal'].copy()
-        zones_copy['kLeeft'] = segs['9: arbeidspl_totaal'].copy()
-
-        for a in ageList: zones_copy[f'KLEEFT_{a}'] = segs[f'KLEEFT_{a}']
-        for i in incList: zones_copy[f'HHINK_{i}'] = segs[f'HHINK_{i}']
-
-        zones_copy.to_csv(
-            f"{varDict['OUTPUTFOLDER']}ParcelDemand_analysis_calib.csv",
-            index=True)
-        
-        
-        ### END of tests
-        
+        zones['parcels'] += (demandPerZone['parcels'] / 60)
 
         # Spread over couriers based on market shares
         for cep in cepList:
